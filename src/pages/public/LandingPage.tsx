@@ -170,12 +170,7 @@ export default function LandingPage() {
       {/* Nav */}
       <nav className="sticky top-0 z-50 bg-bg/80 backdrop-blur-md border-b border-border">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg gradient-brand flex items-center justify-center">
-              <span className="text-white font-bold text-sm">P</span>
-            </div>
-            <span className="font-semibold text-text-primary">Pace</span>
-          </div>
+          <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity"><div className="w-8 h-8 rounded-lg gradient-brand flex items-center justify-center"><span className="text-white font-bold text-sm">P</span></div><span className="font-semibold text-text-primary">Pace</span></Link>
           <div className="flex items-center gap-3">
             <Link
               to="/login"
@@ -227,7 +222,15 @@ export default function LandingPage() {
         </div>
 
         {/* Dashboard preview */}
-        <DashboardPreview />
+        {/* Illustration */}
+        <div className="relative mt-16 max-w-5xl mx-auto rounded-2xl overflow-hidden border border-border shadow-strong bg-surface group">
+          <img 
+            src="/assets/landing_illustration.jpg" 
+            alt="Pace Productivity Illustration" 
+            className="w-full h-auto object-cover opacity-95 group-hover:opacity-100 transition-opacity duration-500 transform group-hover:scale-[1.01]" 
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-surface/40 via-transparent to-transparent pointer-events-none mix-blend-overlay" />
+        </div>
       </section>
 
       {/* Plan â†’ Schedule â†’ Execute â†’ Review */}

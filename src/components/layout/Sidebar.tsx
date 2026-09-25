@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from 'react-router-dom'
+import { NavLink, Link, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard,
   CheckSquare,
@@ -72,13 +72,18 @@ export default function Sidebar() {
         'hidden md:flex items-center h-14 border-b border-border px-3 shrink-0',
         sidebarOpen ? 'gap-3' : 'justify-center'
       )}>
-        {/* P logo mark */}
-        <div className="w-8 h-8 rounded-lg gradient-brand flex items-center justify-center shrink-0">
-          <span className="text-white font-bold text-sm">P</span>
-        </div>
-        {sidebarOpen && (
-          <span className="font-semibold text-text-primary text-base tracking-tight">Pace</span>
-        )}
+        <Link to="/" className={cn(
+          "flex items-center hover:opacity-80 transition-opacity",
+          sidebarOpen ? 'gap-3' : 'justify-center'
+        )}>
+          {/* P logo mark */}
+          <div className="w-8 h-8 rounded-lg gradient-brand flex items-center justify-center shrink-0">
+            <span className="text-white font-bold text-sm">P</span>
+          </div>
+          {sidebarOpen && (
+            <span className="font-semibold text-text-primary text-base tracking-tight">Pace</span>
+          )}
+        </Link>
       </div>
 
       {/* Navigation */}
