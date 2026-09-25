@@ -84,8 +84,8 @@ export default function OnboardingPage() {
     switch (step) {
       case 0:
         return (
-          <div className="animate-fade-in flex flex-col items-center text-center h-full justify-center">
-            <div className="w-full h-48 bg-surface-overlay rounded-2xl mb-8 overflow-hidden">
+          <div className="animate-flow-in flex flex-col items-center text-center h-full justify-center">
+            <div className="w-full h-[280px] bg-surface-overlay rounded-3xl mb-8 overflow-hidden shadow-sm">
               <img src="/assets/onboarding_welcome.jpg" alt="Welcome to Pace" className="w-full h-full object-cover" />
             </div>
             <h1 className="text-3xl font-bold text-text-primary mb-3">Welcome to Pace!</h1>
@@ -100,7 +100,7 @@ export default function OnboardingPage() {
         )
       case 1:
         return (
-          <div className="animate-fade-in flex flex-col h-full">
+          <div className="animate-flow-in flex flex-col h-full">
             <h1 className="text-2xl font-bold text-text-primary mb-2">Choose your theme</h1>
             <p className="text-text-muted mb-8">You can always change this later in settings.</p>
             
@@ -144,7 +144,7 @@ export default function OnboardingPage() {
         )
       case 2:
         return (
-          <div className="animate-fade-in flex flex-col h-full">
+          <div className="animate-flow-in flex flex-col h-full">
             <h1 className="text-2xl font-bold text-text-primary mb-2">How will you use Pace?</h1>
             <p className="text-text-muted mb-8">We'll tailor your experience based on your focus.</p>
 
@@ -196,7 +196,7 @@ export default function OnboardingPage() {
         )
       case 3:
         return (
-          <div className="animate-fade-in flex flex-col h-full">
+          <div className="animate-flow-in flex flex-col h-full">
             <h1 className="text-2xl font-bold text-text-primary mb-2">Set your first goal</h1>
             <p className="text-text-muted mb-8">What's one thing you want to accomplish today?</p>
 
@@ -246,17 +246,17 @@ export default function OnboardingPage() {
         aria-hidden="true"
       />
 
-      <div className="relative w-full max-w-[420px]">
+      <div className="relative w-full max-w-lg">
         {/* Logo */}
         <div className="flex items-center justify-center gap-2 mb-8">
-          <div className="flex items-center justify-center size-9 rounded-xl gradient-brand shadow-brand">
-            <span className="text-white font-bold text-lg leading-none">P</span>
+          <div className="flex items-center justify-center size-12 rounded-2xl gradient-brand shadow-brand">
+            <span className="text-white font-bold text-2xl leading-none">P</span>
           </div>
-          <span className="text-lg font-bold text-text-primary">Pace</span>
+          <span className="text-2xl font-bold text-text-primary mb-0.5">Pace</span>
         </div>
 
         {/* Card */}
-        <div className="bg-surface border border-border rounded-3xl p-8 shadow-strong min-h-[500px] flex flex-col">
+        <div className="min-h-[500px] flex flex-col w-full">
           {/* Step dots */}
           {step > 0 && (
             <div className="flex items-center justify-between mb-8">
