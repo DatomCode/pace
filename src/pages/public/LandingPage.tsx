@@ -151,14 +151,12 @@ function Stage({
   className?: string
 }) {
   return (
-    <div className={`flex-1 text-center px-4 py-6 rounded-xl transition-colors ${active ? 'bg-brand-500/10 border border-brand-500/20' : 'bg-surface'} ${className || ''}`}>
-      <div className={`text-2xs font-bold uppercase tracking-widest mb-2 ${active ? 'text-brand-400' : 'text-text-disabled'}`}>
-        {number}
+    <div className={`card p-6 flex-1 hover:border-brand-500/30 transition-colors text-left ${className || ''}`}>
+      <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${active ? 'bg-brand-500/10 text-brand-500' : 'bg-surface-elevated text-text-muted'}`}>
+        <span className="text-sm font-bold">{number}</span>
       </div>
-      <div className={`text-lg font-semibold mb-2 ${active ? 'text-text-primary' : 'text-text-secondary'}`}>
-        {label}
-      </div>
-      <div className="text-xs text-text-muted">{description}</div>
+      <h3 className="text-base font-semibold text-text-primary mb-2">{label}</h3>
+      <p className="text-sm text-text-muted leading-relaxed">{description}</p>
     </div>
   )
 }
@@ -192,10 +190,7 @@ export default function LandingPage() {
       {/* Hero */}
       <section className="max-w-6xl mx-auto px-6 pt-20 pb-16">
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-brand-500/30 bg-brand-500/10 text-brand-400 text-xs font-medium mb-6">
-            <Sparkles className="w-3 h-3" />
-            AI-powered task generation
-          </div>
+          
           <h1 className="text-5xl md:text-6xl font-bold text-text-primary mb-6 leading-tight text-balance">
             Plan your work.{' '}
             <span className="text-transparent bg-clip-text gradient-brand">Get things done.</span>
@@ -245,15 +240,15 @@ export default function LandingPage() {
 
         <div className="flex overflow-x-auto snap-x snap-mandatory pb-6 -mx-6 px-6 gap-4 md:overflow-visible md:snap-none md:pb-0 md:mx-0 md:px-0 scrollbar-hide">
           <Stage className="flex-none w-[85vw] md:flex-1 md:w-auto snap-center" number="01" label="Plan" description="Break goals into tasks and projects. Use AI to generate a task list from any goal." active />
-          <div className="hidden md:flex items-center justify-center pt-9 shrink-0">
+          <div className="hidden md:flex items-center justify-center shrink-0 self-center">
             <ChevronRight className="w-5 h-5 text-text-disabled" />
           </div>
           <Stage className="flex-none w-[85vw] md:flex-1 md:w-auto snap-center" number="02" label="Schedule" description="Block time for your tasks. Build a daily schedule and stay on top of what's coming." />
-          <div className="hidden md:flex items-center justify-center pt-9 shrink-0">
+          <div className="hidden md:flex items-center justify-center shrink-0 self-center">
             <ChevronRight className="w-5 h-5 text-text-disabled" />
           </div>
           <Stage className="flex-none w-[85vw] md:flex-1 md:w-auto snap-center" number="03" label="Execute" description="Your dashboard answers: what needs attention right now? Work your list." />
-          <div className="hidden md:flex items-center justify-center pt-9 shrink-0">
+          <div className="hidden md:flex items-center justify-center shrink-0 self-center">
             <ChevronRight className="w-5 h-5 text-text-disabled" />
           </div>
           <Stage className="flex-none w-[85vw] md:flex-1 md:w-auto snap-center" number="04" label="Review" description="See what you completed each week. Understand your patterns without judgment." />
@@ -313,10 +308,7 @@ export default function LandingPage() {
       <section className="max-w-6xl mx-auto px-6 py-20 border-t border-border">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-400 text-xs font-medium mb-6">
-              <Sparkles className="w-3 h-3" />
-              AI-assisted planning
-            </div>
+            
             <h2 className="text-3xl font-bold text-text-primary mb-4">
               Turn any goal into an actionable plan
             </h2>

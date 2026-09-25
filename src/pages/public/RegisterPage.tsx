@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -72,7 +72,7 @@ export default function RegisterPage() {
       })
       setTokens(tokens.access, tokens.refresh)
       setUser(user)
-      navigate('/onboarding', { replace: true })
+      navigate('/app/onboarding', { replace: true })
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : 'Registration failed. Please try again.'

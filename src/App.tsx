@@ -79,7 +79,7 @@ export default function App() {
 
         {/* Onboarding — protected but separate from app shell */}
         <Route element={<ProtectedRoute />}>
-          <Route path="/onboarding" element={<OnboardingPage />} />
+          <Route path="/app/onboarding" element={<OnboardingPage />} />
         </Route>
 
         {/* App — protected with sidebar shell */}
