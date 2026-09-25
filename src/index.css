@@ -1,0 +1,174 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Design System CSS Variables ─────────────────────────────────────────── */
+:root {
+  /* Light theme (default) */
+  --bg: 0 0% 98%;
+  --bg-subtle: 240 5% 96%;
+  --surface: 0 0% 100%;
+  --surface-elevated: 240 5% 99%;
+  --surface-overlay: 240 5% 97%;
+  --border: 240 5% 88%;
+  --border-subtle: 240 5% 93%;
+  --text-primary: 240 10% 8%;
+  --text-secondary: 240 5% 35%;
+  --text-muted: 240 5% 55%;
+  --text-disabled: 240 5% 70%;
+}
+
+.dark {
+  /* Dark theme */
+  --bg: 240 6% 7%;
+  --bg-subtle: 240 5% 10%;
+  --surface: 240 5% 12%;
+  --surface-elevated: 240 5% 15%;
+  --surface-overlay: 240 5% 18%;
+  --border: 240 4% 20%;
+  --border-subtle: 240 4% 16%;
+  --text-primary: 0 0% 98%;
+  --text-secondary: 240 5% 75%;
+  --text-muted: 240 5% 55%;
+  --text-disabled: 240 5% 38%;
+}
+
+/* ─── Base ─────────────────────────────────────────────────────────────────── */
+@layer base {
+  * {
+    @apply border-border;
+    box-sizing: border-box;
+  }
+
+  html {
+    @apply antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+    font-variation-settings: 'opsz' 32;
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+
+  body {
+    @apply bg-bg text-text-primary font-sans;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full;
+    background: hsl(var(--border));
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--text-muted));
+  }
+
+  /* Focus ring */
+  :focus-visible {
+    @apply outline-none ring-2 ring-brand-500 ring-offset-1 ring-offset-bg;
+  }
+
+  /* Selection */
+  ::selection {
+    @apply bg-brand-500/20 text-text-primary;
+  }
+}
+
+/* ─── Components ───────────────────────────────────────────────────────────── */
+@layer components {
+  .page-container {
+    @apply max-w-screen-xl mx-auto px-6 py-8;
+  }
+
+  .card {
+    @apply bg-surface border border-border rounded-xl;
+  }
+
+  .card-elevated {
+    @apply bg-surface-elevated border border-border rounded-xl;
+  }
+
+  /* Status badge base */
+  .badge {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-2xs font-medium;
+  }
+
+  /* Skeleton */
+  .skeleton {
+    @apply bg-surface-overlay animate-pulse rounded;
+  }
+
+  /* Sidebar nav item */
+  .nav-item {
+    @apply flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-text-muted
+      transition-all duration-150 cursor-pointer select-none;
+  }
+
+  .nav-item:hover {
+    @apply text-text-primary bg-surface-overlay;
+  }
+
+  .nav-item.active {
+    @apply text-text-primary bg-surface-overlay;
+  }
+
+  /* Timeline */
+  .timeline-slot {
+    @apply border-t border-border-subtle;
+  }
+
+  /* Prose for AI analysis */
+  .prose-pace {
+    @apply text-sm text-text-secondary leading-relaxed;
+  }
+
+  .prose-pace p {
+    @apply mb-3;
+  }
+}
+
+/* ─── Utilities ─────────────────────────────────────────────────────────────── */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .gradient-brand {
+    background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
+  }
+
+  .gradient-surface {
+    background: linear-gradient(180deg, hsl(var(--surface)) 0%, hsl(var(--bg)) 100%);
+  }
+
+  /* Glow effects */
+  .glow-brand {
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.15);
+  }
+
+  /* Truncate multiline */
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+}
