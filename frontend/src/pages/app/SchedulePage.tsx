@@ -41,6 +41,16 @@ function timeToMinutes(timeStr: string) {
 }
 
 // Rotating palette for event left-border colours
+
+const EVENT_SOLID_COLORS = [
+  'bg-blue-500',
+  'bg-emerald-500',
+  'bg-violet-500',
+  'bg-pink-500',
+  'bg-amber-500',
+  'bg-cyan-500',
+]
+
 const EVENT_BORDER_COLORS = [
   'border-l-brand-500',
   'border-l-violet-500',
@@ -212,7 +222,7 @@ export default function SchedulePage() {
         <div className="flex items-center justify-between gap-3 rounded-2xl bg-white dark:bg-surface border border-gray-100 dark:border-border shadow-sm p-3">
           <button
             onClick={() => setCurrentDate(subDays(currentDate, 1))}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-gray-100 dark:bg-white/10 text-text-primary hover:bg-gray-200 dark:hover:bg-white/20 transition-colors text-sm font-semibold"
+            className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-black/10 text-white/90 text-text-primary hover:bg-gray-200 dark:hover:bg-white/20 transition-colors text-sm font-semibold"
           >
             <ChevronLeft className="w-4 h-4" />
             Prev
@@ -237,7 +247,7 @@ export default function SchedulePage() {
             )}
             <button
               onClick={() => setCurrentDate(addDays(currentDate, 1))}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-gray-100 dark:bg-white/10 text-text-primary hover:bg-gray-200 dark:hover:bg-white/20 transition-colors text-sm font-semibold"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-black/10 text-white/90 text-text-primary hover:bg-gray-200 dark:hover:bg-white/20 transition-colors text-sm font-semibold"
             >
               Next
               <ChevronRight className="w-4 h-4" />
@@ -292,28 +302,24 @@ export default function SchedulePage() {
                   <div
                     key={event.id}
                     onClick={() => openEditModal(event)}
-                    className={cn(
-                      'absolute left-16 right-4 rounded-xl border-l-4 overflow-hidden cursor-pointer transition-all group',
-                      'bg-white dark:bg-surface shadow-sm hover:shadow-md',
-                      EVENT_BORDER_COLORS[colorIdx],
-                    )}
+                    className={cn('absolute left-16 right-4 rounded-md overflow-hidden cursor-pointer transition-all group shadow-sm hover:shadow-md', EVENT_SOLID_COLORS[idx % EVENT_SOLID_COLORS.length])}
                     style={{ top: `${safeTop}px`, height: `${safeHeight}px` }}
                   >
-                    <div className="px-2.5 py-1.5 h-full flex flex-col justify-center">
-                      <div className={cn('text-xs font-bold truncate', EVENT_TEXT_COLORS[colorIdx])}>
+                    <div className="px-3 py-1.5 h-full flex flex-col">
+                      <div className="text-xs font-bold truncate text-white">
                         {event.title}
                       </div>
-                      <div className="text-[10px] text-text-muted mt-0.5">
+                      <div className="text-[10px] text-white/90 mt-0.5">
                         {event.start_time} – {event.end_time}
                       </div>
                       {event.task_title && safeHeight >= 50 && (
-                        <div className="text-[10px] text-text-disabled truncate mt-1 bg-gray-100 dark:bg-white/10 px-1.5 py-0.5 rounded-full inline-block w-fit">
+                        <div className="text-[10px] truncate mt-1 text-white/80 bg-black/10 text-white/90 px-1.5 py-0.5 rounded-full inline-block w-fit">
                           {event.task_title}
                         </div>
                       )}
                     </div>
                     <button
-                      className="absolute top-1.5 right-1.5 p-1 opacity-0 group-hover:opacity-100 text-text-muted hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-all"
+                      className="absolute top-1.5 right-1.5 p-1 opacity-0 group-hover:opacity-100 text-white/70 hover:text-white hover:bg-black/20 rounded-lg transition-all"
                       onClick={(e) => { e.stopPropagation(); setDeleteId(event.id); }}
                     >
                       <Trash2 className="w-3 h-3" />

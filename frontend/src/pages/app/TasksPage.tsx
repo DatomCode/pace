@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { addDays, subDays, format, isSameDay } from 'date-fns'
 import { Plus, Search, CheckCircle2 } from 'lucide-react'
 import { tasksApi } from '@/api/tasks'
 import { projectsApi } from '@/api/projects'
@@ -31,6 +32,7 @@ const STATUS_TABS = [
 ]
 
 export default function TasksPage() {
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date())
   const [createTaskOpen, setCreateTaskOpen] = useState(false)
   const [drawerTaskId, setDrawerTaskId] = useState<string | null>(null)
 
@@ -63,7 +65,11 @@ export default function TasksPage() {
     queryFn: () => tasksApi.list(queryParams),
   })
 
-  const tasks = data?.results ?? []
+  const rawTasks = data?.results ?? []
+  const tasks = rawTasks.filter(task => {
+    if (!task.due_date) return false
+    return task.due_date === format(selectedDate, 'yyyy-MM-dd')
+  })
 
   const resetFilters = () => {
     setSearch('')
@@ -79,37 +85,44 @@ export default function TasksPage() {
   return (
     <>
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-6 pb-28">
-
-        {/* ── Gradient Hero Header ──────────────────────────────────────────── */}
-        <div
-          className="relative rounded-3xl overflow-hidden px-6 py-5"
-          style={{ background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a78bfa 100%)' }}
-        >
-          {/* Decorative circles */}
-          <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-white/10 pointer-events-none" />
-          <div className="absolute -bottom-6 -left-6 w-24 h-24 rounded-full bg-white/10 pointer-events-none" />
-
-          <div className="relative">
-            <h1 className="text-2xl font-bold text-white">Tasks</h1>
-            <p className="text-sm text-white/70 mt-0.5">
-              {isLoading ? 'Loading…' : `${tasks.length} task${tasks.length !== 1 ? 's' : ''} found`}
-            </p>
-          </div>
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <button onClick={() => window.history.back()} className="p-2 -ml-2 rounded-xl hover:bg-surface-overlay transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          <h1 className="text-lg font-bold text-text-primary">
+            {isSameDay(selectedDate, new Date()) ? "Today's Tasks" : `${format(selectedDate, 'MMM d')} Tasks`}
+          </h1>
+          <button className="p-2 -mr-2 rounded-xl hover:bg-surface-overlay transition-colors relative">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+            <span className="absolute top-2 right-2.5 w-1.5 h-1.5 rounded-full bg-brand-500" />
+          </button>
         </div>
 
-        {/* ── Search bar ───────────────────────────────────────────────────── */}
-        <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" />
-          <input
-            type="text"
-            placeholder="Search tasks…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 rounded-2xl border border-gray-100 dark:border-border bg-white dark:bg-surface text-sm focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 outline-none transition-all"
-          />
+        {/* Date Row */}
+        <div className="flex overflow-x-auto gap-3 pb-2 scrollbar-hide snap-x -mx-4 px-4">
+          {Array.from({ length: 14 }).map((_, i) => {
+            const date = addDays(subDays(new Date(), 2), i)
+            const isSelected = isSameDay(date, selectedDate)
+            return (
+              <button
+                key={i}
+                onClick={() => setSelectedDate(date)}
+                className={cn(
+                  'snap-center shrink-0 flex flex-col items-center justify-center w-[72px] h-[90px] rounded-[24px] transition-all',
+                  isSelected
+                    ? 'bg-brand-500 text-white shadow-md shadow-brand-500/20'
+                    : 'bg-white dark:bg-surface text-text-primary hover:bg-gray-50 dark:hover:bg-surface-overlay border border-gray-100 dark:border-border'
+                )}
+              >
+                <span className={cn('text-[11px] font-medium mb-1', isSelected ? 'text-white/80' : 'text-text-muted')}>{format(date, 'MMM')}</span>
+                <span className="text-[22px] font-bold leading-none mb-1">{format(date, 'dd')}</span>
+                <span className={cn('text-[11px] font-medium', isSelected ? 'text-white/80' : 'text-text-muted')}>{format(date, 'EEE')}</span>
+              </button>
+            )
+          })}
         </div>
 
-        {/* ── Status filter pill tabs ───────────────────────────────────────── */}
         <div className="flex overflow-x-auto gap-2 pb-1 scrollbar-hide">
           {STATUS_TABS.map((tab) => (
             <button
