@@ -40,6 +40,34 @@ function timeToMinutes(timeStr: string) {
   return h * 60 + (m || 0)
 }
 
+// Rotating palette for event left-border colours
+const EVENT_BORDER_COLORS = [
+  'border-l-brand-500',
+  'border-l-violet-500',
+  'border-l-emerald-500',
+  'border-l-amber-500',
+  'border-l-pink-500',
+  'border-l-cyan-500',
+]
+
+const EVENT_BG_COLORS = [
+  'bg-brand-500/8',
+  'bg-violet-500/8',
+  'bg-emerald-500/8',
+  'bg-amber-500/8',
+  'bg-pink-500/8',
+  'bg-cyan-500/8',
+]
+
+const EVENT_TEXT_COLORS = [
+  'text-brand-600 dark:text-brand-400',
+  'text-violet-600 dark:text-violet-400',
+  'text-emerald-600 dark:text-emerald-400',
+  'text-amber-600 dark:text-amber-400',
+  'text-pink-600 dark:text-pink-400',
+  'text-cyan-600 dark:text-cyan-400',
+]
+
 export default function SchedulePage() {
   const queryClient = useQueryClient()
   const [currentDate, setCurrentDate] = useState(new Date())
@@ -162,120 +190,199 @@ export default function SchedulePage() {
   const dayStartMin = 7 * 60
   const totalMinutes = 16 * 60 // 7 AM to 11 PM
 
+  const isToday = isSameDay(currentDate, new Date())
+
   return (
     <>
-      <div className="page-container h-full flex flex-col space-y-4">
+      <div className="max-w-2xl mx-auto px-4 py-6 space-y-6 pb-28">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <div>
+          <div className="flex items-center gap-3">
+            <div
+              className="w-10 h-10 rounded-2xl flex items-center justify-center shadow-sm"
+              style={{ background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a78bfa 100%)' }}
+            >
+              <CalendarIcon className="w-5 h-5 text-white" />
+            </div>
             <h1 className="text-2xl font-bold text-text-primary">Schedule</h1>
           </div>
-          <Button onClick={() => openCreateModal()}>
-            <Plus className="w-4 h-4 mr-1.5" />
-            Add Event
-          </Button>
         </div>
 
-        {/* Date Nav */}
-        <div className="flex items-center justify-between bg-surface p-2 rounded-xl border border-border">
-          <Button variant="ghost" onClick={() => setCurrentDate(subDays(currentDate, 1))}>
-            <ChevronLeft className="w-4 h-4 mr-1" /> Prev
-          </Button>
-          <div className="flex items-center gap-4">
-            <span className="font-medium text-text-primary">
-              {format(currentDate, 'EEEE, MMMM d, yyyy')}
+        {/* Date Navigation */}
+        <div className="flex items-center justify-between gap-3 rounded-2xl bg-white dark:bg-surface border border-gray-100 dark:border-border shadow-sm p-3">
+          <button
+            onClick={() => setCurrentDate(subDays(currentDate, 1))}
+            className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-gray-100 dark:bg-white/10 text-text-primary hover:bg-gray-200 dark:hover:bg-white/20 transition-colors text-sm font-semibold"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            Prev
+          </button>
+
+          <div className="flex flex-col items-center gap-1">
+            <span className="font-bold text-text-primary text-sm">
+              {format(currentDate, 'EEEE, MMMM d')}
             </span>
-            {!isSameDay(currentDate, new Date()) && (
-              <Button size="sm" variant="secondary" onClick={() => setCurrentDate(new Date())}>
-                Today
-              </Button>
-            )}
+            <span className="text-xs text-text-muted">{format(currentDate, 'yyyy')}</span>
           </div>
-          <Button variant="ghost" onClick={() => setCurrentDate(addDays(currentDate, 1))}>
-            Next <ChevronRight className="w-4 h-4 ml-1" />
-          </Button>
+
+          <div className="flex items-center gap-2">
+            {!isToday && (
+              <button
+                onClick={() => setCurrentDate(new Date())}
+                className="px-3 py-1.5 rounded-full text-xs font-bold text-white transition-colors"
+                style={{ background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)' }}
+              >
+                Today
+              </button>
+            )}
+            <button
+              onClick={() => setCurrentDate(addDays(currentDate, 1))}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-gray-100 dark:bg-white/10 text-text-primary hover:bg-gray-200 dark:hover:bg-white/20 transition-colors text-sm font-semibold"
+            >
+              Next
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
-        {/* Timeline */}
-        <div className="card flex-1 overflow-y-auto relative min-h-[500px]">
+        {/* Timeline Card */}
+        <div className="rounded-2xl bg-white dark:bg-surface border border-gray-100 dark:border-border shadow-sm overflow-hidden">
           {isLoading ? (
-             <div className="flex items-center justify-center h-full text-text-muted">Loading schedule...</div>
+            <div className="flex flex-col items-center justify-center h-64 gap-3">
+              <div
+                className="w-8 h-8 rounded-full border-2 border-transparent animate-spin"
+                style={{ borderTopColor: '#6366f1', borderRightColor: '#8b5cf6' }}
+              />
+              <span className="text-sm text-text-muted">Loading schedule...</span>
+            </div>
           ) : (
             <div className="relative" style={{ height: `${totalMinutes}px` }}>
-              {/* Grid */}
+              {/* Hour grid rows */}
               {HOURS.map((hour) => (
-                <div 
-                  key={hour} 
-                  className="absolute w-full flex border-t border-border-subtle"
+                <div
+                  key={hour}
+                  className="absolute w-full flex border-t border-gray-100 dark:border-border/50"
                   style={{ top: `${(hour - 7) * 60}px`, height: '60px' }}
                 >
-                  <div className="w-16 text-right pr-3 text-2xs text-text-muted -mt-2">
-                    {format(new Date().setHours(hour, 0, 0, 0), 'h a')}
+                  {/* Hour label */}
+                  <div className="w-16 shrink-0 flex items-start justify-end pr-3 pt-1">
+                    <span className="text-xs font-bold text-brand-500">
+                      {format(new Date().setHours(hour, 0, 0, 0), 'h a')}
+                    </span>
                   </div>
-                  <div 
-                    className="flex-1 hover:bg-surface-overlay/30 cursor-pointer transition-colors"
+                  {/* Clickable hour slot */}
+                  <div
+                    className="flex-1 hover:bg-brand-500/5 cursor-pointer transition-colors"
                     onClick={() => openCreateModal(`${hour.toString().padStart(2, '0')}:00`)}
                   />
                 </div>
               ))}
 
-              {/* Events */}
-              {events.map((event) => {
+              {/* Event cards */}
+              {events.map((event, idx) => {
                 const startMins = timeToMinutes(event.start_time)
                 const endMins = timeToMinutes(event.end_time)
                 const top = startMins - dayStartMin
                 const height = endMins - startMins
-                // Bound it visually so it doesn't overflow
                 const safeTop = Math.max(0, top)
-                const safeHeight = Math.max(20, height)
+                const safeHeight = Math.max(28, height)
+                const colorIdx = idx % EVENT_BORDER_COLORS.length
 
                 return (
                   <div
                     key={event.id}
                     onClick={() => openEditModal(event)}
-                    className="absolute left-16 right-4 rounded-lg bg-brand-500/10 border border-brand-500/30 p-2 overflow-hidden cursor-pointer hover:bg-brand-500/20 transition-colors group"
+                    className={cn(
+                      'absolute left-16 right-4 rounded-xl border-l-4 overflow-hidden cursor-pointer transition-all group',
+                      'bg-white dark:bg-surface shadow-sm hover:shadow-md',
+                      EVENT_BORDER_COLORS[colorIdx],
+                    )}
                     style={{ top: `${safeTop}px`, height: `${safeHeight}px` }}
                   >
-                    <div className="text-xs font-semibold text-brand-400">{event.title}</div>
-                    <div className="text-2xs text-brand-400/80 mt-0.5">
-                      {event.start_time} - {event.end_time}
-                    </div>
-                    {event.task_title && (
-                      <div className="text-2xs text-text-muted truncate mt-1 bg-bg/50 px-1.5 py-0.5 rounded inline-block">
-                        Task: {event.task_title}
+                    <div className="px-2.5 py-1.5 h-full flex flex-col justify-center">
+                      <div className={cn('text-xs font-bold truncate', EVENT_TEXT_COLORS[colorIdx])}>
+                        {event.title}
                       </div>
-                    )}
-                    <button 
-                      className="absolute top-2 right-2 p-1 opacity-0 group-hover:opacity-100 text-brand-400 hover:text-red-400 hover:bg-red-500/10 rounded transition-all"
+                      <div className="text-[10px] text-text-muted mt-0.5">
+                        {event.start_time} – {event.end_time}
+                      </div>
+                      {event.task_title && safeHeight >= 50 && (
+                        <div className="text-[10px] text-text-disabled truncate mt-1 bg-gray-100 dark:bg-white/10 px-1.5 py-0.5 rounded-full inline-block w-fit">
+                          {event.task_title}
+                        </div>
+                      )}
+                    </div>
+                    <button
+                      className="absolute top-1.5 right-1.5 p-1 opacity-0 group-hover:opacity-100 text-text-muted hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-all"
                       onClick={(e) => { e.stopPropagation(); setDeleteId(event.id); }}
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Trash2 className="w-3 h-3" />
                     </button>
                   </div>
                 )
               })}
+
+              {/* Empty state overlay when no events */}
+              {events.length === 0 && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                  <div
+                    className="w-14 h-14 rounded-3xl flex items-center justify-center mb-3 shadow-sm"
+                    style={{ background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a78bfa 100%)' }}
+                  >
+                    <CalendarIcon className="w-7 h-7 text-white" />
+                  </div>
+                  <p className="font-bold text-text-primary text-sm">No events today</p>
+                  <p className="text-xs text-text-muted mt-1">Click any hour slot or the + button to add one</p>
+                </div>
+              )}
             </div>
           )}
         </div>
       </div>
 
+      {/* FAB */}
+      <button
+        onClick={() => openCreateModal()}
+        className="fixed bottom-24 right-5 w-14 h-14 rounded-full shadow-lg flex items-center justify-center z-30 transition-transform hover:scale-105 active:scale-95"
+        style={{ background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a78bfa 100%)' }}
+        aria-label="Add event"
+      >
+        <Plus className="w-6 h-6 text-white" />
+      </button>
+
+      {/* Event create/edit modal */}
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editingEvent ? 'Edit Event' : 'Add Event'} size="sm">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {apiError && (
-            <div className="px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-400">
+            <div className="px-3 py-2.5 rounded-2xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-sm text-red-600 dark:text-red-400">
               {apiError}
             </div>
           )}
-          
+
+          {/* Conflict warning banner */}
           {conflictWarning && (
-            <div className="px-3 py-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-sm text-amber-400 flex flex-col gap-3">
-              <div className="flex items-start gap-2">
+            <div className="px-4 py-3 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 flex flex-col gap-3">
+              <div className="flex items-start gap-2 text-amber-700 dark:text-amber-400">
                 <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-                <span>{conflictWarning}</span>
+                <span className="text-sm font-medium">{conflictWarning}</span>
               </div>
               <div className="flex gap-2">
-                <Button type="button" size="sm" variant="secondary" onClick={() => setConflictWarning(null)}>Edit time</Button>
-                <Button type="button" size="sm" onClick={forceSave} isLoading={saveMutation.isPending}>Continue anyway</Button>
+                <button
+                  type="button"
+                  className="flex-1 px-3 py-2 rounded-xl border border-amber-300 dark:border-amber-500/40 text-sm font-semibold text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-500/10 transition-colors"
+                  onClick={() => setConflictWarning(null)}
+                >
+                  Edit time
+                </button>
+                <button
+                  type="button"
+                  className="flex-1 px-3 py-2 rounded-xl text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+                  style={{ background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)' }}
+                  onClick={forceSave}
+                  disabled={saveMutation.isPending}
+                >
+                  {saveMutation.isPending ? 'Saving...' : 'Continue anyway'}
+                </button>
               </div>
             </div>
           )}
@@ -297,10 +404,23 @@ export default function SchedulePage() {
                 <Input type="time" label="Start Time" error={errors.start_time?.message} {...register('start_time')} />
                 <Input type="time" label="End Time" error={errors.end_time?.message} {...register('end_time')} />
               </div>
-              
-              <div className="flex gap-2 pt-2">
-                <Button type="button" variant="ghost" onClick={() => setModalOpen(false)} className="flex-1">Cancel</Button>
-                <Button type="submit" isLoading={saveMutation.isPending} className="flex-1">Save</Button>
+
+              <div className="flex gap-2 pt-1">
+                <button
+                  type="button"
+                  className="flex-1 px-4 py-2.5 rounded-2xl border border-gray-200 dark:border-border text-sm font-semibold text-text-muted hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+                  onClick={() => setModalOpen(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 px-4 py-2.5 rounded-2xl text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+                  style={{ background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)' }}
+                  disabled={saveMutation.isPending}
+                >
+                  {saveMutation.isPending ? 'Saving...' : 'Save Event'}
+                </button>
               </div>
             </>
           )}

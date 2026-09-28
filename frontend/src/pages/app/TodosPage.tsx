@@ -1,16 +1,13 @@
 import { useState, useRef } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Plus, Trash2, CheckSquare, Square, ClipboardList } from 'lucide-react'
+import { Plus, Trash2, Check, ClipboardList } from 'lucide-react'
 
 import { todosApi } from '@/api/todos'
 import type { Todo } from '@/types'
-import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
-import { EmptyState } from '@/components/ui/EmptyState'
 import { Skeleton } from '@/components/ui/SkeletonLoader'
-import { cn, formatDate } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 
-// ── Todo row ───────────────────────────────────────────────────────────────────
+// ── TodoRow (card style) ───────────────────────────────────────────────────────
 interface TodoRowProps {
   todo: Todo
   onToggle: (todo: Todo) => void
@@ -21,26 +18,30 @@ interface TodoRowProps {
 
 function TodoRow({ todo, onToggle, onDelete, isToggling, isDeleting }: TodoRowProps) {
   return (
-    <li
+    <div
       className={cn(
         'group flex items-center gap-3 px-4 py-3',
-        'border-b border-border-subtle last:border-0',
-        'transition-opacity duration-150',
+        'rounded-2xl bg-white dark:bg-surface border border-gray-100 dark:border-border',
+        'shadow-sm hover:shadow-md transition-all duration-150',
         (isToggling || isDeleting) && 'opacity-50',
       )}
     >
-      {/* Checkbox toggle */}
+      {/* Circular checkbox */}
       <button
         type="button"
         onClick={() => onToggle(todo)}
         disabled={isToggling || isDeleting}
         aria-label={todo.completed ? `Mark "${todo.title}" as incomplete` : `Mark "${todo.title}" as complete`}
-        className="shrink-0 text-text-muted hover:text-brand-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded"
+        className={cn(
+          'shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-150',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500',
+          todo.completed
+            ? 'bg-brand-500 border-brand-500'
+            : 'border-gray-300 dark:border-border hover:border-brand-400',
+        )}
       >
-        {todo.completed ? (
-          <CheckSquare className="size-4.5 text-green-400" aria-hidden="true" />
-        ) : (
-          <Square className="size-4.5" aria-hidden="true" />
+        {todo.completed && (
+          <Check className="w-3 h-3 text-white" strokeWidth={3} aria-hidden="true" />
         )}
       </button>
 
@@ -56,46 +57,42 @@ function TodoRow({ todo, onToggle, onDelete, isToggling, isDeleting }: TodoRowPr
         {todo.title}
       </span>
 
-      {/* Date */}
-      <span className="hidden sm:block text-xs text-text-disabled shrink-0">
-        {formatDate(todo.created_at, 'MMM d')}
-      </span>
-
-      {/* Delete */}
+      {/* Delete button — visible on hover */}
       <button
         type="button"
         onClick={() => onDelete(todo.id)}
         disabled={isToggling || isDeleting}
         aria-label={`Delete "${todo.title}"`}
         className={cn(
-          'shrink-0 text-text-disabled hover:text-red-400 transition-colors',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded',
+          'shrink-0 w-6 h-6 flex items-center justify-center rounded-lg',
+          'text-text-disabled hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20',
+          'transition-all duration-150',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500',
           'opacity-0 group-hover:opacity-100',
         )}
       >
-        <Trash2 className="size-4" aria-hidden="true" />
+        <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
       </button>
-    </li>
+    </div>
   )
 }
 
 // ── Skeleton rows ──────────────────────────────────────────────────────────────
 function TodoSkeletonRows({ count = 4 }: { count?: number }) {
   return (
-    <ul aria-busy="true" aria-label="Loading todos…">
+    <div aria-busy="true" aria-label="Loading todos…" className="space-y-2">
       {Array.from({ length: count }).map((_, i) => (
-        <li
+        <div
           key={i}
-          className="flex items-center gap-3 px-4 py-3 border-b border-border-subtle last:border-0"
+          className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-white dark:bg-surface border border-gray-100 dark:border-border"
           aria-hidden="true"
         >
-          <Skeleton className="size-4.5 rounded shrink-0" />
-          <Skeleton className="h-3.5 flex-1 rounded max-w-xs" />
-          <Skeleton className="h-3 w-12 rounded hidden sm:block" />
-          <Skeleton className="size-4 rounded shrink-0" />
-        </li>
+          <Skeleton className="w-5 h-5 rounded-full shrink-0" />
+          <Skeleton className="h-3.5 flex-1 rounded-xl max-w-xs" />
+          <Skeleton className="w-4 h-4 rounded shrink-0" />
+        </div>
       ))}
-    </ul>
+    </div>
   )
 }
 
@@ -164,95 +161,101 @@ export default function TodosPage() {
   }
 
   return (
-    <div className="page-container max-w-2xl">
+    <div className="max-w-2xl mx-auto px-4 py-6 space-y-6 pb-28">
+
       {/* ── Page header ─────────────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center gap-3">
         <div>
           <h1 className="text-2xl font-bold text-text-primary">Todos</h1>
-          {!isLoading && (
-            <p className="mt-0.5 text-sm text-text-muted">
-              {pending.length === 0
-                ? 'Everything is done!'
-                : `${pending.length} pending ${pending.length === 1 ? 'item' : 'items'}`}
-            </p>
-          )}
         </div>
+        {!isLoading && (
+          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-400">
+            {pending.length} pending
+          </span>
+        )}
       </div>
 
       {/* ── Add todo form ────────────────────────────────────────────────────── */}
       <form
         onSubmit={handleCreate}
-        className="flex gap-2 mb-6"
+        className="flex gap-2"
         aria-label="Add a new todo"
       >
-        <Input
+        <input
           ref={inputRef}
           type="text"
           placeholder="Add a new todo…"
           value={newTitle}
           onChange={(e) => setNewTitle(e.target.value)}
           disabled={createMutation.isPending}
-          className="flex-1"
           aria-label="Todo title"
+          className="flex-1 px-4 py-3 rounded-2xl border border-gray-100 dark:border-border bg-white dark:bg-surface text-sm focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 outline-none transition-all"
         />
-        <Button
+        <button
           type="submit"
-          variant="primary"
-          size="md"
-          isLoading={createMutation.isPending}
           disabled={!newTitle.trim() || createMutation.isPending}
           aria-label="Add todo"
+          className={cn(
+            'w-12 h-12 rounded-full flex items-center justify-center text-white shrink-0',
+            'transition-all hover:scale-105 active:scale-95',
+            'disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100',
+          )}
+          style={{ background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)' }}
         >
-          <Plus className="size-4" aria-hidden="true" />
-          <span className="hidden sm:inline">Add</span>
-        </Button>
+          {createMutation.isPending ? (
+            <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+          ) : (
+            <Plus className="w-5 h-5" aria-hidden="true" />
+          )}
+        </button>
       </form>
 
       {/* ── Error state ─────────────────────────────────────────────────────── */}
       {isError && (
         <div
           role="alert"
-          className="p-4 mb-4 rounded-xl bg-red-500/10 border border-red-500/20 text-sm text-red-400"
+          className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-sm text-red-400"
         >
           Failed to load todos. Please refresh the page.
         </div>
       )}
 
       {/* ── Loading skeleton ─────────────────────────────────────────────────── */}
-      {isLoading && (
-        <div className="bg-surface border border-border rounded-xl overflow-hidden">
-          <TodoSkeletonRows count={5} />
-        </div>
-      )}
+      {isLoading && <TodoSkeletonRows count={5} />}
 
       {/* ── Empty state ─────────────────────────────────────────────────────── */}
       {!isLoading && todos.length === 0 && (
-        <EmptyState
-          icon={ClipboardList}
-          title="No todos yet"
-          description="Add your first todo above to get started."
-        />
+        <div className="flex flex-col items-center text-center px-6 py-12">
+          <div
+            className="w-16 h-16 rounded-3xl flex items-center justify-center mb-4"
+            style={{ background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)' }}
+          >
+            <ClipboardList className="w-7 h-7 text-white" strokeWidth={1.5} />
+          </div>
+          <h3 className="text-base font-bold text-text-primary mb-1.5">No todos yet</h3>
+          <p className="text-sm text-text-muted max-w-xs leading-relaxed">
+            Add your first todo above to get started.
+          </p>
+        </div>
       )}
 
       {/* ── Pending section ─────────────────────────────────────────────────── */}
       {!isLoading && pending.length > 0 && (
-        <section className="mb-6" aria-label="Pending todos">
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-text-disabled mb-2 px-1">
+        <section aria-label="Pending todos">
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-text-disabled mb-3 px-1">
             Pending · {pending.length}
           </h2>
-          <div className="bg-surface border border-border rounded-xl overflow-hidden">
-            <ul>
-              {pending.map((todo) => (
-                <TodoRow
-                  key={todo.id}
-                  todo={todo}
-                  onToggle={handleToggle}
-                  onDelete={handleDelete}
-                  isToggling={toggleLoadingId === todo.id}
-                  isDeleting={deleteLoadingId === todo.id}
-                />
-              ))}
-            </ul>
+          <div className="space-y-2">
+            {pending.map((todo) => (
+              <TodoRow
+                key={todo.id}
+                todo={todo}
+                onToggle={handleToggle}
+                onDelete={handleDelete}
+                isToggling={toggleLoadingId === todo.id}
+                isDeleting={deleteLoadingId === todo.id}
+              />
+            ))}
           </div>
         </section>
       )}
@@ -260,25 +263,36 @@ export default function TodosPage() {
       {/* ── Completed section ────────────────────────────────────────────────── */}
       {!isLoading && completed.length > 0 && (
         <section aria-label="Completed todos">
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-text-disabled mb-2 px-1">
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-text-disabled mb-3 px-1">
             Completed · {completed.length}
           </h2>
-          <div className="bg-surface border border-border rounded-xl overflow-hidden">
-            <ul>
-              {completed.map((todo) => (
-                <TodoRow
-                  key={todo.id}
-                  todo={todo}
-                  onToggle={handleToggle}
-                  onDelete={handleDelete}
-                  isToggling={toggleLoadingId === todo.id}
-                  isDeleting={deleteLoadingId === todo.id}
-                />
-              ))}
-            </ul>
+          <div className="space-y-2">
+            {completed.map((todo) => (
+              <TodoRow
+                key={todo.id}
+                todo={todo}
+                onToggle={handleToggle}
+                onDelete={handleDelete}
+                isToggling={toggleLoadingId === todo.id}
+                isDeleting={deleteLoadingId === todo.id}
+              />
+            ))}
           </div>
         </section>
       )}
+
+      {/* ── FAB (mobile) ────────────────────────────────────────────────────── */}
+      <button
+        onClick={() => {
+          inputRef.current?.focus()
+          inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }}
+        aria-label="Add new todo"
+        className="fixed bottom-24 right-5 w-14 h-14 rounded-full flex items-center justify-center text-white shadow-lg z-30 transition-transform hover:scale-105 active:scale-95 md:hidden"
+        style={{ background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)' }}
+      >
+        <Plus className="w-6 h-6" />
+      </button>
     </div>
   )
 }

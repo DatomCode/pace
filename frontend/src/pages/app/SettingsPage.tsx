@@ -4,14 +4,12 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { User, Mail, LogOut, Settings, Calendar } from 'lucide-react'
+import { Sun, Moon, LogOut, Calendar, Mail, CheckCircle2 } from 'lucide-react'
 
 import { authApi } from '@/api/auth'
 import { useAuthStore } from '@/store/authStore'
 import { useThemeStore } from '@/store/themeStore'
 import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
-import { Select } from '@/components/ui/Select'
 import { cn, formatDate } from '@/lib/utils'
 
 // ── Schemas ────────────────────────────────────────────────────────────────────
@@ -31,30 +29,18 @@ const PREFERENCE_OPTIONS = [
   { value: 'general_productivity', label: 'General Productivity' },
 ]
 
-const THEME_OPTIONS = [
-  { value: 'light', label: 'Light' },
-  { value: 'dark', label: 'Dark' },
-]
-
 // ── Section card wrapper ───────────────────────────────────────────────────────
 function SectionCard({
   title,
-  icon: Icon,
   children,
 }: {
   title: string
-  icon: React.ComponentType<{ className?: string }>
   children: React.ReactNode
 }) {
   return (
-    <section className="bg-surface border border-border rounded-xl overflow-hidden">
-      <div className="flex items-center gap-3 px-5 py-4 border-b border-border">
-        <div className="flex items-center justify-center size-8 rounded-lg bg-surface-overlay">
-          <Icon className="size-4 text-text-muted" aria-hidden="true" />
-        </div>
-        <h2 className="text-sm font-semibold text-text-primary">{title}</h2>
-      </div>
-      <div className="p-5">{children}</div>
+    <section className="rounded-2xl bg-white dark:bg-surface border border-gray-100 dark:border-border shadow-sm p-5">
+      <h2 className="text-base font-bold text-text-primary mb-4">{title}</h2>
+      {children}
     </section>
   )
 }
@@ -125,174 +111,213 @@ export default function SettingsPage() {
   })
 
   return (
-    <div className="page-container max-w-2xl">
+    <div className="max-w-lg mx-auto px-4 py-6 space-y-5 pb-28">
       {/* ── Page header ─────────────────────────────────────────────────────── */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-text-primary flex items-center gap-2">
-          <Settings className="size-6 text-text-muted" aria-hidden="true" />
-          Settings
-        </h1>
+      <div>
+        <h1 className="text-2xl font-bold text-text-primary">Settings</h1>
         <p className="mt-1 text-sm text-text-muted">Manage your profile and preferences.</p>
       </div>
 
-      <div className="flex flex-col gap-5">
-        {/* ── Profile section ───────────────────────────────────────────────── */}
-        <SectionCard title="Profile" icon={User}>
-          <form
-            onSubmit={handleSubmit(onProfileSubmit)}
-            noValidate
-            className="flex flex-col gap-4"
-          >
-            <Input
-              label="Full name"
+      {/* ── Profile section ───────────────────────────────────────────────── */}
+      <SectionCard title="Profile">
+        <form onSubmit={handleSubmit(onProfileSubmit)} noValidate className="flex flex-col gap-4">
+          {/* Name field */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-semibold text-text-primary">Full name</label>
+            <input
               type="text"
               placeholder="Your name"
               autoComplete="name"
-              error={errors.name?.message}
               disabled={isProfileSubmitting}
+              className={cn(
+                'rounded-2xl border border-gray-100 dark:border-border bg-white dark:bg-surface',
+                'focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 focus:outline-none',
+                'px-4 py-3 text-sm text-text-primary placeholder:text-text-muted',
+                'disabled:opacity-50',
+              )}
               {...register('name')}
             />
+            {errors.name && (
+              <p className="text-xs text-red-500">{errors.name.message}</p>
+            )}
+          </div>
 
-            <Input
-              label="Email address"
+          {/* Email field */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-semibold text-text-primary">Email address</label>
+            <input
               type="email"
               placeholder="you@example.com"
               autoComplete="email"
-              error={errors.email?.message}
               disabled={isProfileSubmitting}
+              className={cn(
+                'rounded-2xl border border-gray-100 dark:border-border bg-white dark:bg-surface',
+                'focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 focus:outline-none',
+                'px-4 py-3 text-sm text-text-primary placeholder:text-text-muted',
+                'disabled:opacity-50',
+              )}
               {...register('email')}
             />
+            {errors.email && (
+              <p className="text-xs text-red-500">{errors.email.message}</p>
+            )}
+          </div>
 
-            {profileMutation.isError && (
+          {profileMutation.isError && (
+            <p role="alert" className="text-sm text-red-400">
+              Failed to save profile. Please try again.
+            </p>
+          )}
+
+          <div className="flex items-center gap-3">
+            <Button
+              type="submit"
+              variant="primary"
+              size="md"
+              isLoading={isProfileSubmitting}
+              disabled={!isDirty || isProfileSubmitting}
+            >
+              Save profile
+            </Button>
+
+            {profileSuccess && (
+              <span className="flex items-center gap-1 text-sm text-emerald-500 animate-fade-in">
+                <CheckCircle2 className="w-4 h-4" aria-hidden="true" />
+                Saved!
+              </span>
+            )}
+          </div>
+        </form>
+      </SectionCard>
+
+      {/* ── Preferences section ───────────────────────────────────────────── */}
+      <SectionCard title="Preferences">
+        <div className="flex flex-col gap-6">
+          {/* Theme toggle */}
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-semibold text-text-primary">App Theme</label>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { value: 'light', label: 'Light', icon: Sun },
+                { value: 'dark', label: 'Dark', icon: Moon },
+              ].map(({ value, label, icon: Icon }) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setTheme(value as 'light' | 'dark')}
+                  className={cn(
+                    'flex items-center justify-center gap-2 rounded-2xl border-2 px-4 py-3 text-sm font-semibold transition-all',
+                    theme === value
+                      ? 'border-brand-500 bg-brand-500/5 text-brand-500'
+                      : 'border-gray-100 dark:border-border bg-surface-overlay text-text-muted hover:border-brand-500/40',
+                  )}
+                >
+                  <Icon className="w-4 h-4" aria-hidden="true" />
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Productivity focus */}
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-semibold text-text-primary">Productivity Focus</label>
+            <div className="flex flex-wrap gap-2">
+              {PREFERENCE_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setPreference(opt.value)}
+                  disabled={prefMutation.isPending}
+                  className={cn(
+                    'rounded-2xl px-4 py-2 text-sm font-semibold transition-all',
+                    preference === opt.value
+                      ? 'bg-brand-500 text-white shadow-sm'
+                      : 'bg-surface-overlay text-text-muted hover:bg-surface-overlay/80',
+                    'disabled:opacity-50',
+                  )}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+
+            {prefMutation.isError && (
               <p role="alert" className="text-sm text-red-400">
-                Failed to save profile. Please try again.
+                Failed to save preference. Please try again.
               </p>
             )}
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 mt-1">
               <Button
-                type="submit"
+                type="button"
                 variant="primary"
                 size="md"
-                isLoading={isProfileSubmitting}
-                disabled={!isDirty || isProfileSubmitting}
+                isLoading={prefMutation.isPending}
+                disabled={!preference || prefMutation.isPending}
+                onClick={handleSavePreference}
               >
-                Save profile
+                Save preference
               </Button>
 
-              {profileSuccess && (
-                <span className="text-sm text-green-400 animate-fade-in">
-                  Profile saved!
+              {prefSuccess && (
+                <span className="flex items-center gap-1 text-sm text-emerald-500 animate-fade-in">
+                  <CheckCircle2 className="w-4 h-4" aria-hidden="true" />
+                  Saved!
                 </span>
               )}
             </div>
-          </form>
-        </SectionCard>
+          </div>
+        </div>
+      </SectionCard>
 
-        {/* ── Preferences section ───────────────────────────────────────────── */}
-        <SectionCard title="Preferences" icon={Settings}>
-          <div className="flex flex-col gap-6">
-            <div className="flex flex-col gap-4">
-              <Select
-                label="Productivity focus"
-                placeholder="Select a focus area..."
-                value={preference}
-                onValueChange={setPreference}
-                options={PREFERENCE_OPTIONS}
-                disabled={prefMutation.isPending}
-              />
+      {/* ── Account section ───────────────────────────────────────────────── */}
+      <SectionCard title="Account">
+        <div className="flex flex-col gap-4">
+          {/* Signed in as */}
+          {user?.email && (
+            <div className="flex items-center gap-3 rounded-xl bg-surface-overlay p-3">
+              <div className="w-8 h-8 rounded-lg bg-brand-500/10 flex items-center justify-center shrink-0">
+                <Mail className="w-4 h-4 text-brand-400" aria-hidden="true" />
+              </div>
+              <div>
+                <p className="text-xs text-text-muted">Signed in as</p>
+                <p className="text-sm font-semibold text-text-primary">{user.email}</p>
+              </div>
+            </div>
+          )}
 
-              {prefMutation.isError && (
-                <p role="alert" className="text-sm text-red-400">
-                  Failed to save preference. Please try again.
+          {/* Join date */}
+          {user?.date_joined && (
+            <div className="flex items-center gap-3 rounded-xl bg-surface-overlay p-3">
+              <div className="w-8 h-8 rounded-lg bg-surface-overlay border border-border flex items-center justify-center shrink-0">
+                <Calendar className="w-4 h-4 text-text-muted" aria-hidden="true" />
+              </div>
+              <div>
+                <p className="text-xs text-text-muted">Member since</p>
+                <p className="text-sm font-semibold text-text-primary">
+                  {formatDate(user.date_joined, 'MMMM d, yyyy')}
                 </p>
-              )}
-
-              <div className="flex items-center gap-3">
-                <Button
-                  type="button"
-                  variant="primary"
-                  size="md"
-                  isLoading={prefMutation.isPending}
-                  disabled={!preference || prefMutation.isPending}
-                  onClick={handleSavePreference}
-                >
-                  Save preference
-                </Button>
-
-                {prefSuccess && (
-                  <span className="text-sm text-green-400 animate-fade-in">
-                    Preference saved!
-                  </span>
-                )}
               </div>
             </div>
+          )}
 
-            <div className="flex flex-col gap-4 pt-6 border-t border-border-subtle">
-              <Select
-                label="App Theme"
-                placeholder="Select a theme..."
-                value={theme}
-                onValueChange={(val) => setTheme(val as 'light' | 'dark')}
-                options={THEME_OPTIONS}
-              />
-            </div>
-          </div>
-        </SectionCard>
-
-        {/* ── Account section ───────────────────────────────────────────────── */}
-        <SectionCard title="Account" icon={LogOut}>
-          <div className="flex flex-col gap-5">
-            {/* Join date */}
-            {user?.date_joined && (
-              <div
-                className={cn(
-                  'flex items-center gap-3 p-3.5 rounded-lg',
-                  'bg-surface-overlay border border-border-subtle',
-                )}
-              >
-                <Calendar className="size-4 text-text-muted shrink-0" aria-hidden="true" />
-                <div>
-                  <p className="text-xs text-text-muted">Member since</p>
-                  <p className="text-sm font-medium text-text-primary">
-                    {formatDate(user.date_joined, 'MMMM d, yyyy')}
-                  </p>
-                </div>
-              </div>
+          {/* Logout */}
+          <button
+            type="button"
+            disabled={logoutMutation.isPending}
+            onClick={() => logoutMutation.mutate()}
+            className={cn(
+              'w-full flex items-center justify-center gap-2 rounded-2xl border-2 border-red-500 text-red-500',
+              'hover:bg-red-50 dark:hover:bg-red-500/10 font-bold px-5 py-2.5 transition-colors',
+              'disabled:opacity-50',
             )}
-
-            {/* Email display */}
-            {user?.email && (
-              <div
-                className={cn(
-                  'flex items-center gap-3 p-3.5 rounded-lg',
-                  'bg-surface-overlay border border-border-subtle',
-                )}
-              >
-                <Mail className="size-4 text-text-muted shrink-0" aria-hidden="true" />
-                <div>
-                  <p className="text-xs text-text-muted">Signed in as</p>
-                  <p className="text-sm font-medium text-text-primary">{user.email}</p>
-                </div>
-              </div>
-            )}
-
-            {/* Logout */}
-            <div className="pt-1">
-              <Button
-                type="button"
-                variant="danger"
-                size="md"
-                isLoading={logoutMutation.isPending}
-                onClick={() => logoutMutation.mutate()}
-              >
-                <LogOut className="size-4" aria-hidden="true" />
-                {logoutMutation.isPending ? 'Signing out…' : 'Sign out'}
-              </Button>
-            </div>
-          </div>
-        </SectionCard>
-      </div>
+          >
+            <LogOut className="w-4 h-4" aria-hidden="true" />
+            {logoutMutation.isPending ? 'Signing out…' : 'Sign out'}
+          </button>
+        </div>
+      </SectionCard>
     </div>
   )
 }
