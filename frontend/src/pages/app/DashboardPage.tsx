@@ -211,7 +211,10 @@ export default function DashboardPage() {
   const overdueTasks = allTasks.filter((t) => dashboard.overdue_tasks.some((o) => o.id === t.id))
   const inProgressTasks = allTasks.filter((t) => !overdueTasks.includes(t) && t.status === 'in_progress')
   const todayTasks = allTasks.filter((t) => !overdueTasks.includes(t) && !inProgressTasks.includes(t))
-  const completionRate = Math.round((dashboard.today_completion_rate ?? 0) * 100)
+  const targetTasks = deduplicateTasks([...dashboard.today_tasks, ...dashboard.overdue_tasks])
+  const tasksCompletedToday = targetTasks.filter(t => t.status === 'completed').length
+  const tasksDueToday = targetTasks.length
+  const completionRate = tasksDueToday === 0 ? 0 : Math.round((tasksCompletedToday / tasksDueToday) * 100)
   const todayStr = format(new Date(), 'EEEE, MMMM d')
   const firstName = user?.name?.split(' ')[0] ?? 'there'
 
@@ -234,7 +237,7 @@ export default function DashboardPage() {
               <div className="inline-block bg-white/20 rounded-2xl px-4 py-3 backdrop-blur-sm">
                 <p className="text-white/80 text-xs mb-1">Today's progress</p>
                 <p className="text-white text-sm font-semibold">
-                  {dashboard.tasks_completed_today ?? 0} of {dashboard.tasks_due_today ?? 0} tasks done
+                  {tasksCompletedToday} of {tasksDueToday} tasks done
                 </p>
               </div>
             </div>
@@ -249,7 +252,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Today date pill */}
-          <div className="mt-4 flex items-center justify-between">
+          <div className="relative z-10 mt-4 flex items-center justify-between">
             <span className="text-white/60 text-xs">{todayStr}</span>
             <button
               onClick={() => navigate('/app/tasks')}
